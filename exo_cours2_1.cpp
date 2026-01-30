@@ -10,7 +10,14 @@ timespec timespec_from_ms(double time_ms)
 {
     timespec time_ts;
     time_ts.tv_sec = (time_ms / 1.e3);
-    time_ts.tv_nsec = ((time_ms - (time_ts.tv_sec * 1.e3)) * 1.e6);
+    double remaining_ms = time_ms - (time_ts.tv_sec * 1.e3);
+    time_ts.tv_nsec = (remaining_ms * 1.e6);
+
+    // Normalize if nanoseconds is negative
+    if (time_ts.tv_nsec < 0) {
+        time_ts.tv_sec -= 1;
+        time_ts.tv_nsec += 1.e9;
+    }
     return time_ts;
 }
 
@@ -26,16 +33,13 @@ timespec timespec_negate(const timespec& time_ts)
 {
     timespec result;
     result.tv_sec = -time_ts.tv_sec;
-    if (result.tv_sec < 0 && time_ts.tv_nsec > 0) {
+    result.tv_nsec = -time_ts.tv_nsec;
+
+    // Normalize if nanoseconds is negative
+    if (result.tv_nsec < 0) {
         result.tv_sec -= 1;
         result.tv_nsec += 1.e9;
     }
-    else
-    {
-        result.tv_sec += 1;
-        result.tv_nsec = -time_ts.tv_nsec;
-    }
-    result.tv_nsec = time_ts.tv_nsec;
     return result;
 }
 
