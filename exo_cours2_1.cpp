@@ -214,7 +214,7 @@ int main()
     timespec result_3_2 = timespec_from_ms(test3_3) + timespec_from_ms(test3_4);
     std::cout << "Result 3_2: " << timespec_to_ms(result_3_2) << " ms" << std::endl;
 
-    // Test soustraction -- PAS BON
+    // Test soustraction
     double test4_1 = 5000; //ms
     double test4_2 = 2000; //ms
     timespec result_4_1 = timespec_from_ms(test4_1) - timespec_from_ms(test4_2);
@@ -222,5 +222,22 @@ int main()
     timespec result_4_2 = timespec_from_ms(test4_2) - timespec_from_ms(test4_1);
     std::cout << "Result 4_2: " << timespec_to_ms(result_4_2) << " ms" << std::endl;
 
+    double test4_3 = 2300; //ms
+    double test4_4 = 4100; //ms
+    timespec result_4_3 = timespec_from_ms(test4_3) - timespec_from_ms(test4_4);
+    std::cout << "Result 4_3: " << timespec_to_ms(result_4_3) << " ms" << std::endl;
+    timespec result_4_4 = timespec_from_ms(test4_4) - timespec_from_ms(test4_3);
+    std::cout << "Result 4_4: " << timespec_to_ms(result_4_4) << " ms" << std::endl;
+
+    // Test Bool
+    double test5_1 = 2000; //ms
+    double test5_2 = 3000;
+    std::cout << "Result 5_1: " << (timespec_from_ms(test5_1) != timespec_from_ms(test5_2)) << " inequal" << std::endl;
+    std::cout << "Result 5_2: " << (timespec_from_ms(test5_1) == timespec_from_ms(test5_2)) << " equal" << std::endl;
+    std::cout << "Result 5_3: " << (timespec_from_ms(test5_1) > timespec_from_ms(test5_2)) << " superior" << std::endl;
+    std::cout << "Result 5_4: " << (timespec_from_ms(test5_1) < timespec_from_ms(test5_2)) << " inferior" << std::endl;
+
+    // Test Now
+    
     return 0;
 }
