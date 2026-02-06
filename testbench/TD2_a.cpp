@@ -6,7 +6,7 @@ struct myData {
     int timer_cpt=0;
 };
 
-void myHandler(int sig, siginfo_t* si, void*)
+void myHandler(int, siginfo_t* si, void*)
 {
     myData* data_ptr = static_cast<myData*>(si->si_value.sival_ptr);
     data_ptr->timer_cpt++;

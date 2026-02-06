@@ -1,13 +1,13 @@
-#include "timer.h"
+#include "../include/timer.h"
 #include <iostream>
 
 class CountDown : public Timer
 {
-    private:
+    protected:
         void callback() override
         { 
             timer_cpt--;
-            std::cout << "Remaining Time : " << timer_cpt << std::endl;
+            std::cout << "Remaining Time : " << timer_cpt << "s" << std::endl;
         }
 
     public:
@@ -15,6 +15,7 @@ class CountDown : public Timer
         void start_ms(int n, double frequency_ms)
         {
             timer_cpt = n;
+            std::cout << "Remaining Time : " << timer_cpt << "s" << std::endl;
             Timer::start_ms(frequency_ms, true);
         }
 

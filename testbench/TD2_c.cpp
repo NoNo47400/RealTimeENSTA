@@ -1,13 +1,13 @@
 #include <iostream>
-#include "looper.h"
-#include "chrono.h"
-#include "timespec_utils.h"
+#include "../include/looper.h"
+#include "../include/chrono.h"
+#include "../include/timespec_utils.h"
 
 
 int main(int argc, char* argv[])
 {
     if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " <number of loops>" << std::endl;
+        std::cerr << "You need to specify the number of loops" << std::endl;
         return 1;
     }
     

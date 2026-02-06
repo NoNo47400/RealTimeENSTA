@@ -1,10 +1,9 @@
-#include "looper.h"
+#include "../include/looper.h"
 
 double Looper::runLoop(double nLoops)
 {
-    iLoop = 0;
     doStop = false;
-    for (int i=0; i<nLoops; i++)
+    for (iLoop=0; iLoop<nLoops; iLoop++)
     {
         if(doStop==true)
         {

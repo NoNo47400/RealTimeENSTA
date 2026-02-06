@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "chrono.h"
-#include "timespec_utils.h"
+#include "../include/chrono.h"
+#include "../include/timespec_utils.h"
 
 int main()
 {

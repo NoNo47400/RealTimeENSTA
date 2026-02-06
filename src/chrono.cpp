@@ -1,4 +1,4 @@
-#include "chrono.h"
+#include "../include/chrono.h"
 
 Chrono::Chrono() 
 {
