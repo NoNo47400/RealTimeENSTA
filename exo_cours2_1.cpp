@@ -238,6 +238,8 @@ int main()
     std::cout << "Result 5_4: " << (timespec_from_ms(test5_1) < timespec_from_ms(test5_2)) << " inferior" << std::endl;
 
     // Test Now
-    
+    timespec now = timespec_now();
+    std::cout << "Now time: " << timespec_to_ms(now) << " ms" << std::endl;
+
     return 0;
 }
