@@ -12,11 +12,9 @@ void myHandler(int sig, siginfo_t* si, void*)
     data_ptr->timer_cpt++;
 }
 
-
-
 int main()
 {
-    myData data;
+    volatile myData data; // Volatile to prevent compiler optimization on data.timer_cpt, which is modified in the signal handler and not in the main
 
     struct sigaction sa;
     sa.sa_flags = SA_SIGINFO;
@@ -45,4 +43,5 @@ int main()
             std::cout << "Counter value: " << data.timer_cpt << std::endl;
         }
     }
+    timer_delete(tid);
 }
