@@ -4,7 +4,7 @@
 
 int main()
 {
-    Calibrator calibrator(200.0, 15); // On prend une dizaine d'échantillons tous les 200ms pour la calibration
+    Calibrator calibrator(200.0, 100); // On prend une dizaine d'échantillons tous les 200ms pour la calibration
     std::cout << "Calibration finie" << std::endl;
 
     CpuLoop cpuLoop(calibrator);

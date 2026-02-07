@@ -7,7 +7,7 @@ int main()
 {
     Looper looper;
     Chrono chrono;
-    Calibrator calibrator(200.0, 10); // On prend une dizaine d'échantillons tous les 200ms pour la calibration
+    Calibrator calibrator(200.0, 50); // On prend une dizaine d'échantillons tous les 200ms pour la calibration
     
     std::cout << "Calibration finie" << std::endl;
     std::cout << "Durée (ms) | Estimation de nLoops | Durée mesurée (ms) | Erreur (%)" << std::endl;
