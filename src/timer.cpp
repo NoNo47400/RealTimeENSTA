@@ -1,6 +1,6 @@
 #include "../include/timer.h"
 
-void Timer::call_callback(int, siginfo_t* si, void*) 
+void Timer::call_callback(int, siginfo_t* si, void*)
 {
     Timer* ptr = static_cast<Timer*>(si->si_value.sival_ptr);
     ptr->callback();

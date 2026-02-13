@@ -1,93 +1,65 @@
 # CSC_RRO05_TA
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
+## Developer notes
+I keep a small git alias to push to two remotes in one command:
 ```
-cd existing_repo
-git remote add origin https://gitlab.ensta.fr/jumin/csc_rro05_ta.git
-git branch -M main
-git push -uf origin main
+git config --global alias.pushboth '!git push origin && git push origin_ensta'
+```
+Use it with:
+```
+git pushboth
 ```
 
-## Integrate with your tools
+## Build
+To build everything, run:
+```
+make
+```
 
-* [Set up project integrations](https://gitlab.ensta.fr/jumin/csc_rro05_ta/-/settings/integrations)
+All executables produced from the `testbench/` sources are placed in the `bin/` directory.
 
-## Collaborate with your team
+## TD descriptions (what the code does)
+This repository contains small exercises that demonstrate timing utilities, CPU-consuming loops, basic POSIX timers, threads and mutex usage.
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### TD1
+This exercise tests the time utilities in `timespec_utils` and the `Chrono` helper class. `Chrono` uses the functions in `timespec_utils` to capture a start time and compute elapsed time when `stop()` is called. It also provides `lap()` and `lap_ms()` to sample elapsed time without stopping the chrono.
 
-## Test and Deploy
+### TD2
+TD2 shows simple usage of POSIX timers and a CPU-consuming loop utility.
 
-Use the built-in continuous integration in GitLab.
+To answer the recurring TD2 question concerning the `const` qualifier on methods: add `const` to any method that should not modify the object's members. This helps protect class attributes from modification.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+#### A — POSIX timer handler
+A simple signal handler is installed and invoked periodically by a POSIX timer. The handler updates a value that the main program can read.
 
-***
+#### B — `Timer` class
+`Timer` wraps a POSIX timer (created with `timer_create`) and exposes `start`, `start_ms` and `stop` methods. It requires derived classes to implement the virtual `callback()` which is called from the signal handler.
 
-# Editing this README
+#### C — `Looper` class
+`Looper` runs an empty loop for a specified number of iterations to consume CPU time.    
+The class uses `volatile` for `doStop` and `iLoop` so the compiler does not optimize away or cache those variables; that ensures the loop can be stopped from another context.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+#### D — `Calibrator`
+`Calibrator` derives from `Timer` and samples the `Looper`'s progress at a fixed period. It collects samples, then performs a linear regression to compute coefficients $a$ and $b$ so that $nLoops(t) = a \times t + b$.    
+The implementation starts the periodic timer and runs the looper until the desired number of samples is collected.
 
-## Suggestions for a good README
+#### E — Busy-wait using calibrated loops
+Using `Calibrator` and `Looper` together you can estimate the number of iterations required to occupy the CPU for a requested duration, then run that number of iterations to achieve approximate busy-waiting for that duration.   
+To obtain a relative error below 10% for this target, we performed a denser calibration using 100 samples taken every 50 ms.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### TD3
+TD3 demonstrates threads and mutexes usage.
 
-## Name
-Choose a self-explaining name for your project.
+#### A — Plain threads and counter
+1) A single thread increments a local counter in a tight loop until it is signalled to stop. This produces the largest count per second ($\approx 3^9$ on local Ubuntu for 3 seconds) because there is no contention. 
+2) Three threads increment a shared counter concurrently without synchronization. Due to race conditions, the final counter value is typically lower than the ideal sum of three independent counters.Increments may be lost so we devide by $10$ the output ($\approx 3^8$ on local Ubuntu for 3 seconds).
+3) The same three-thread test but with a `pthread_mutex_t` protecting the counter. The mutex serializes access to the counter, which eliminates lost increments but reduces throughput because threads wait for the lock. The ouput is again devided by 10 ($\approx 3^7$ on local Ubuntu for 3 seconds).
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+The exact numerical counter values depend heavily on the CPU and system load, so it could be different on another system (for example a Raspberry).
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+#### B — `Mutex` wrapper class
+`Mutex` provides a small RAII-friendly wrapper around a POSIX mutex. Two nested classes are provided:
+- `Mutex::Lock` — an RAII lock object. Constructing it locks the mutex, destroying it unlocks the mutex. A timed constructor is also available.
+- `Mutex::TimeoutException` — thrown by the timed `Lock` constructor on timeout.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This design avoids forgetting to unlock the mutex (the destructor will unlock automatically if the lock object goes out of scope because it is on the stack).

@@ -20,7 +20,7 @@ void Mutex::lock()
     pthread_mutex_lock(&posixMutexId);
 }
 
-bool Mutex::lock(double timeout_ms) 
+bool Mutex::lock(double timeout_ms)
 {
     struct timespec deadline;
     deadline = timespec_now() + timespec_from_ms(timeout_ms);

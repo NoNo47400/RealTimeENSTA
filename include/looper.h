@@ -10,7 +10,7 @@ class Looper
     public:
         double runLoop(double nLoops = DBL_MAX);
 
-        double getSample();
+        double getSample() const;
 
         double stopLoop();
 };

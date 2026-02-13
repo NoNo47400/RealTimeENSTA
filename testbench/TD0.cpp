@@ -1,5 +1,5 @@
 int main() {
-    volatile int* pFifo = (int*) 0xFC000000; // On dit au compilateur que la mémoire peut changer en dehors du programme (cela permet de réecrire à la même adresse plusieurs fois sans que le compilateur simplifie en une seule écriture (la derniere))
+    volatile int* pFifo = (int*) 0xFC000000; // We say to the compiler that the memory can change outside the program (this allows rewriting to the same address several times without the compiler simplifying to a single write (the last one))
 
     for (int i=0; i<1000; i++) {
         pFifo[0]= 2*i+1;

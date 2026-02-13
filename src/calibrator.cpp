@@ -53,7 +53,7 @@ Calibrator::Calibrator(double samplingPeriod_ms, unsigned int nSamples_) : nSamp
     linearRegression(samplingPeriod_ms);
 }
 
-double Calibrator::nLoops(double duration_ms)
+double Calibrator::nLoops(double duration_ms) const
 {
     return a * duration_ms + b;
 }

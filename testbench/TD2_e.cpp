@@ -4,12 +4,12 @@
 
 int main()
 {
-    Calibrator calibrator(200.0, 100); // On prend une dizaine d'échantillons tous les 200ms pour la calibration
-    std::cout << "Calibration finie" << std::endl;
+    Calibrator calibrator(50.0, 100); // denser sampling: 20 samples every 50ms (covers ~1s)
+    std::cout << "Calibration finished" << std::endl;
 
     CpuLoop cpuLoop(calibrator);
 
-    double error = cpuLoop.runTime(1000.0); // On veut faire tourner le CPU pendant 1s
+    double error = cpuLoop.runTime(1000.0); // We want to run the CPU for 1s
     std::cout << "Relative error for 1s: " << error << "%" << std::endl;
     return 0;
 }

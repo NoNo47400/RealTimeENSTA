@@ -7,14 +7,14 @@ int main()
 {
     Looper looper;
     Chrono chrono;
-    Calibrator calibrator(200.0, 50); // On prend une dizaine d'échantillons tous les 200ms pour la calibration
-    
-    std::cout << "Calibration finie" << std::endl;
-    std::cout << "Durée (ms) | Estimation de nLoops | Durée mesurée (ms) | Erreur (%)" << std::endl;
+    Calibrator calibrator(200.0, 50); // We take ten samples every 200ms for calibration
+
+    std::cout << "Calibration finished" << std::endl;
+    std::cout << "Duration (ms) | Estimated nLoops | Measured Duration (ms) | Error (%)" << std::endl;
 
     for (double duration_ms = 500.0; duration_ms <= 10000.0; duration_ms += 200.0) {
-        double estimatedLoops = calibrator.nLoops(duration_ms); // On estime le nombre de boucles pour cette durée
-        
+        double estimatedLoops = calibrator.nLoops(duration_ms); // We estimate the number of loops for this duration
+
         chrono.restart();
         looper.runLoop(estimatedLoops);
         double measuredDuration_ms = timespec_to_ms(chrono.stop());

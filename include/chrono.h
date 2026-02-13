@@ -20,7 +20,7 @@ public:
 
     bool isActive() const;
 
-    timespec lap();
+    timespec lap() const;
 
-    double lap_ms();
+    double lap_ms() const;
 };

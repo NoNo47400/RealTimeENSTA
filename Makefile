@@ -46,7 +46,6 @@ build/%.o: src/%.cpp | dirs
 dirs:
 	mkdir -p build
 	mkdir -p bin
-	mkdir -p testbench/logs
 
 clean:
 	rm -rf build bin testbench/logs

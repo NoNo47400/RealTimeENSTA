@@ -21,6 +21,5 @@ class Calibrator : public Timer
 
     public:
         Calibrator(double samplingPeriod_ms, unsigned int nSamples_);
-        
-        double nLoops(double duration_ms);
+        double nLoops(double duration_ms) const;
 };

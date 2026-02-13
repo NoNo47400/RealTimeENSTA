@@ -66,6 +66,13 @@ int main()
     // Test Now
     timespec now = timespec_now();
     std::cout << "Now time: " << timespec_to_ms(now) << " ms" << std::endl;
+    
+    // Test Chrono
+    Chrono chrono;
+    // Simulate some work
+    for (volatile int i = 0; i < 100000000; ++i);
+    double elapsed_ms = chrono.lap_ms();
+    std::cout << "Elapsed time: " << elapsed_ms << " ms" << std::endl;
 
     return 0;
 }

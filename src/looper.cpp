@@ -13,7 +13,7 @@ double Looper::runLoop(double nLoops)
     return iLoop;
 }
 
-double Looper::getSample()
+double Looper::getSample() const
 {
     return iLoop;
 }

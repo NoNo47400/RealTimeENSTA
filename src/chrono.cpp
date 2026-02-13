@@ -23,7 +23,7 @@ bool Chrono::isActive() const
     return m_startTime == m_stopTime;
 }
 
-timespec Chrono::lap()
+timespec Chrono::lap() const
 {
     if (isActive()) 
     {
@@ -37,7 +37,7 @@ timespec Chrono::lap()
     }
 }
 
-double Chrono::lap_ms() 
+double Chrono::lap_ms() const
 {
     return timespec_to_ms(lap());
 }
