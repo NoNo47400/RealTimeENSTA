@@ -28,15 +28,13 @@ int Thread::getMainSched()
 void* Thread::call_run(void* v_Thread) // We need to return a void* because it is the signature waited
 {
     Thread* thread = static_cast<Thread*>(v_Thread);
-    thread->chrono.restart();
-    thread->isThreadStarted = true;
     thread->run();
     thread->chrono.stop();
     thread->isThreadStarted = false;
     return thread;
 }
 
-void Thread::join()
+void Thread::join() const
 {
     pthread_join(posixThreadId, NULL);
 }
@@ -51,12 +49,12 @@ Thread::~Thread()
     pthread_attr_destroy(&posixThreadAttrId);
 }
 
-bool Thread::isStarted()
+bool Thread::isStarted() const
 {
     return isThreadStarted;
 }
 
-long Thread::duration_ms()
+long Thread::duration_ms() const
 {
     return long(chrono.lap_ms());
 }
@@ -84,4 +82,6 @@ void Thread::start(int priority)
     }
 
     pthread_create(&posixThreadId, &posixThreadAttrId, call_run, this);
+    chrono.restart();
+    isThreadStarted = true;
 }

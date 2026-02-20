@@ -71,8 +71,9 @@ int main()
 
         std::cout << "Thread ID: " << incrementer[i].id << ", Counter value = " << incrementer[i].data.counter << std::endl;
     }
-    
+
     return 0;
 }
 
 
+// Il faut faire try, catch dans le main et call_run car c'est un mecanisme qui remonte

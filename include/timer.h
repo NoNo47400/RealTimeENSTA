@@ -16,7 +16,7 @@ class Timer
     public:   
         Timer();
 
-        ~Timer();
+        virtual ~Timer();
 
         void start(timespec duration, bool isPeriodic);
 

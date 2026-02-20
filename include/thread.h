@@ -28,11 +28,11 @@ class Thread
 
         void start(int priority = 0);
 
-        void join();
+        void join() const;
 
-        bool isStarted();
+        bool isStarted() const;
 
-        long duration_ms();
+        long duration_ms() const;
 
         static int getMaxPrio(int policy);
 
