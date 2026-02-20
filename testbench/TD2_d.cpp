@@ -19,10 +19,8 @@ int main()
         looper.runLoop(estimatedLoops);
         double measuredDuration_ms = timespec_to_ms(chrono.stop());
         
-        // Calcul de l'erreur
+        // Error calculation: relative error in percentage
         double error = ((measuredDuration_ms - duration_ms) / duration_ms) * 100.0;
-        
-        // Afficher les résultats
         std::cout << duration_ms << " | " << estimatedLoops << " | " << measuredDuration_ms << " | " << error << "%" << std::endl;
     }
     

@@ -44,6 +44,7 @@ int main()
         pthread_join(incrementThread[i], nullptr);
     }
     std::cout << "Counter value = " << data.counter << std::endl;
+    return 0;
 }
 
 

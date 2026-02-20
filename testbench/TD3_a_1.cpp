@@ -23,6 +23,7 @@ int main()
     }
     stop = true;
     pthread_join(incrementThread, nullptr);
+    return 0;
 }
 
 

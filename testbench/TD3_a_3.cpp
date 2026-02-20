@@ -41,6 +41,7 @@ int main()
     }
     pthread_mutex_destroy(&data.mutex);
     std::cout << "Counter value = " << data.counter << std::endl;
+    return 0;
 }
 
 

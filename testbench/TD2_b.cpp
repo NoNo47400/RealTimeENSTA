@@ -33,4 +33,5 @@ int main()
     while (count.timer_cpt > 0) {
         continue;
     }
+    return 0;
 }

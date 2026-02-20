@@ -44,4 +44,5 @@ int main()
         }
     }
     timer_delete(tid);
+    return 0;
 }
