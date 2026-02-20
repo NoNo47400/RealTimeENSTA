@@ -63,3 +63,52 @@ The exact numerical counter values depend heavily on the CPU and system load, so
 - `Mutex::TimeoutException` — thrown by the timed `Lock` constructor on timeout.
 
 This design avoids forgetting to unlock the mutex (the destructor will unlock automatically if the lock object goes out of scope because it is on the stack).
+
+#### C — `Thread` wrapper class
+`Thread` provides a wrapper around POSIX threads.  
+
+This helps us simplify thread usage for any function we want to run in a thread. Also, to simplify further we have defined static functions to choose a global policy because we want to prevent the use of multiple different policies which could cause problems.
+
+#### D — `Counter` and `Incrementer`
+`Counter` provides the possibility to launch a Counter with the counter value that could be _protected_ or not using a `Mutex` attribute.     
+`Incrementer` derives from `Thread`, takes a `Counter` object reference and runs, as a thread, _nLoops_ iterations.   
+
+What we want to see here is the real difference in terms of execution time and data protection between a simple thread and a thread using a mutex.     
+
+I have done some experiments (on my personal PC) and here are my results:
+|Protected|Policy|nLoops|nThreads|Execution Time (s)|Counter Value|Counter Value Expected|
+|---|---|---:|---:|---:|---:|---:|
+|No|SCHED_OTHER|1000|1|0.0|1000|1000|
+|No|SCHED_OTHER|1000|3|0.0|3000|2983|
+|No|SCHED_OTHER|1000|5|0.0|5000|4863|
+|No|SCHED_OTHER|10⁸|1|0.5|10⁸|10⁸|
+|No|SCHED_OTHER|10⁸|3|3.0|10.64⁸|30⁸|
+|No|SCHED_OTHER|10⁸|5|4.9|20.10⁸|50⁸|
+|Yes (mutex)|SCHED_OTHER|1000|1|0.0|1000|1000|
+|Yes (mutex)|SCHED_OTHER|1000|3|0.0|3000|3000|
+|Yes (mutex)|SCHED_OTHER|1000|5|0.0|5000|5000|
+|Yes (mutex)|SCHED_OTHER|10⁸|1|6.3|10⁸|10⁸|
+|Yes (mutex)|SCHED_OTHER|10⁸|3|85.8|30⁸|30⁸|
+|Yes (mutex)|SCHED_OTHER|10⁸|5|206.1|50⁸|50⁸|
+|Yes (mutex)|SCHED_RR|1000|1|0.0|1000|1000|
+|Yes (mutex)|SCHED_RR|1000|3|0.0|3000|3000|
+|Yes (mutex)|SCHED_RR|1000|5|0.0|5000|5000|
+|Yes (mutex)|SCHED_RR|10⁸|1|6.3|10⁸|10⁸|
+|Yes (mutex)|SCHED_RR|10⁸|3|86.8|30⁸|30⁸|
+|Yes (mutex)|SCHED_RR|10⁸|5|209.7|50⁸|50⁸|
+|Yes (mutex)|SCHED_FIFO|1000|1|0.0|1000|1000|
+|Yes (mutex)|SCHED_FIFO|1000|3|0.0|3000|3000|
+|Yes (mutex)|SCHED_FIFO|1000|5|0.0|5000|5000|
+|Yes (mutex)|SCHED_FIFO|10⁸|1|9.4|10⁸|10⁸|
+|Yes (mutex)|SCHED_FIFO|10⁸|3|72.1|30⁸|30⁸|
+|Yes (mutex)|SCHED_FIFO|10⁸|5|201.9|50⁸|50⁸|
+
+<small>Note: If you want to launch `./bin/TD3_d` you'll need to specify at least two parameters: `--nLoops x` and `--nTasks x`. You can also specify `--protect` to use mutexes and `--policy <policy>` to specify the policy you want to use. </small>
+<small>Note bis: You need to be _sudo_ to launch correctly SCHED_FIFO and SCHED_RR.</small>
+
+As we can see, with only one task, running without protection is faster and the result is equivalent, which is normal because there is no other thread trying to use the same value. But with more than one thread, the value is no longer equal to the expected one and is in fact lower because the value can be overwritten by another thread.
+
+Also, we can see that when we are using mutexes, we have no problems getting the correct value, but when there are many loops to execute, there is a significant time difference compared to the non-protected version because acquiring and releasing the lock add some overhead each time we modify the counter value.
+
+#### E - Priority Inversion
+We need here to do the test on a Raspberry Pi here.

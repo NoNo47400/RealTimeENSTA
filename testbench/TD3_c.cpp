@@ -56,6 +56,7 @@ int main()
 
     for (int i=0; i<3; ++i)
     {
+        
         incrementer[i].start();
     }
 
@@ -74,6 +75,3 @@ int main()
 
     return 0;
 }
-
-
-// Il faut faire try, catch dans le main et call_run car c'est un mecanisme qui remonte

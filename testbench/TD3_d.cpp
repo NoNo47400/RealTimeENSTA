@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <memory>
 
@@ -73,9 +74,7 @@ int main(int argc, char* argv[])
     double execution_time = chrono.lap_ms();
     std::cout << "Final counter value: " << counter.getValue() << std::endl;
     std::cout << "Expected counter value: " << nTasks * nLoops << std::endl;
-    std::cout << "Execution time: " << execution_time << " ms" << std::endl;
+    std::cout << "Execution time: " << std::fixed << std::setprecision(1) << (execution_time / 1000.0) << " s" << std::endl;
 
-    // With a low number of loops and tasks, without protection is faster and is equivalent in the result, but with a high number of loops and tasks, without protection is faster but the result is not equivalent (it is lower than expected because of the race conditions), but if it is protected, the result is equivalent but it is slower because of the overhead of the mutex 
-    // To use RR or FIFO, we need to launch the program in root
     return 0;
 }
