@@ -1,18 +1,26 @@
 #include "../include/mutex.h"
 
-Mutex::Mutex()
+Mutex::Mutex(bool isInversionSafe)
 {
-    pthread_mutexattr_t mutexAttribute;
-    pthread_mutexattr_init(&mutexAttribute);
-    // Possible values: PTHREAD_MUTEX_DEFAULT, PTHREAD_MUTEX_ERRORCHECK, PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_NORMAL
-    pthread_mutexattr_settype(&mutexAttribute, PTHREAD_MUTEX_DEFAULT);
-    pthread_mutex_init(&posixMutexId, &mutexAttribute);
-    pthread_mutexattr_destroy(&mutexAttribute);
+    pthread_mutexattr_init(&posixMutexAttrId);
+
+    // Possible values PTHREAD_MUTEX_DEFAULT, PTHREAD_MUTEX_ERRORCHECK, PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_NORMAL
+    pthread_mutexattr_settype(&posixMutexAttrId, PTHREAD_MUTEX_DEFAULT);
+
+    if (isInversionSafe)
+    {
+        // Use recursive mutex type and enable priority inheritance protocol
+        pthread_mutexattr_settype(&posixMutexAttrId, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutexattr_setprotocol(&posixMutexAttrId, PTHREAD_PRIO_INHERIT);
+    }
+
+    pthread_mutex_init(&posixMutexId, &posixMutexAttrId);
 }
 
 Mutex::~Mutex()
 {
     pthread_mutex_destroy(&posixMutexId);
+    pthread_mutexattr_destroy(&posixMutexAttrId);
 }
 
 void Mutex::lock()

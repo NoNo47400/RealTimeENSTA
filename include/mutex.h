@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <pthread.h>
 
 #include "timespec_utils.h"
 
@@ -9,6 +10,7 @@ class Mutex
 {
     private:
         pthread_mutex_t posixMutexId;
+        pthread_mutexattr_t posixMutexAttrId;
 
         void lock();
         bool lock(double timeout_ms);
@@ -17,7 +19,7 @@ class Mutex
     public:
         class Lock;
         class TimeoutException;
-        Mutex();
+        Mutex(bool isInversionSafe = false);
         ~Mutex();
 };
 

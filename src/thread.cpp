@@ -82,6 +82,10 @@ void Thread::start(int priority)
     }
 
     pthread_create(&posixThreadId, &posixThreadAttrId, call_run, this);
+
+    schedParam.sched_priority = priority;
+    pthread_setschedparam(posixThreadId, schedPolicy, &schedParam);
+
     chrono.restart();
     isThreadStarted = true;
 }

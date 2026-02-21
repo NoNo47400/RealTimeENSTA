@@ -52,8 +52,8 @@ TD3 demonstrates threads and mutexes usage.
 
 #### A — Plain threads and counter
 1) A single thread increments a local counter in a tight loop until it is signalled to stop. This produces the largest count per second ($\approx 3^9$ on local Ubuntu for 3 seconds) because there is no contention. 
-2) Three threads increment a shared counter concurrently without synchronization. Due to race conditions, the final counter value is typically lower than the ideal sum of three independent counters.Increments may be lost so we devide by $10$ the output ($\approx 3^8$ on local Ubuntu for 3 seconds).
-3) The same three-thread test but with a `pthread_mutex_t` protecting the counter. The mutex serializes access to the counter, which eliminates lost increments but reduces throughput because threads wait for the lock. The ouput is again devided by 10 ($\approx 3^7$ on local Ubuntu for 3 seconds).
+2) Three threads increment a shared counter concurrently without synchronization. Due to race conditions, the final counter value is typically lower than the ideal sum of three independent counters. Increments may be lost so we divide the output by 10 ($\approx 3^8$ on local Ubuntu for 3 seconds).
+3) The same three-thread test but with a `pthread_mutex_t` protecting the counter. The mutex serializes access to the counter, which eliminates lost increments but reduces throughput because threads wait for the lock. The output is again divided by 10 ($\approx 3^7$ on local Ubuntu for 3 seconds).
 
 The exact numerical counter values depend heavily on the CPU and system load, so it could be different on another system (for example a Raspberry).
 
@@ -111,4 +111,25 @@ As we can see, with only one task, running without protection is faster and the 
 Also, we can see that when we are using mutexes, we have no problems getting the correct value, but when there are many loops to execute, there is a significant time difference compared to the non-protected version because acquiring and releasing the lock add some overhead each time we modify the counter value.
 
 #### E - Priority Inversion
-We need here to do the test on a Raspberry Pi here.
+In this part we modified the `Mutex` class to enable priority inheritance (to mitigate priority inversion).
+By doing this, when a high-priority task needs a resource held by a lower-priority task, the lower-priority task temporarily inherits the higher priority so it can finish and release the resource sooner.
+
+I have done some experiments with and without priority inheritance on the resource. Here are the results:
+
+Results without priority inheritance (resource unprotected):
+
+|Task|Execution Time since C started (ms)|
+|---|---:|
+|C|456.9|
+|A|457.0|
+|B|522.2|
+
+Results with priority inheritance (resource protected):
+
+|Task|Execution Time since C started (ms)|
+|---|---:|
+|C|357.6|
+|A|357.6|
+|B|414.8|
+
+<small>Note: These tests were performed on a Raspberry Pi.</small>
