@@ -18,6 +18,30 @@ make
 
 All executables produced from the `testbench/` sources are placed in the `bin/` directory.
 
+
+## SSH connection
+
+To connect to the Raspberry Pi, use one of these two methods:
+
+- If you're connected to the ENSTA VPN:
+```
+ssh -Y <your-dev-login>@147.250.8.198
+```
+
+- If you're outside the ENSTA network:
+```
+ssh -tX <your-ensta-login>@ssh.ensta.fr <your-rpi2b-dev-login>@147.250.8.198
+```
+
+<small>Note: You will first be prompted for your ENSTA password, then for your Raspberry Pi password.</small>
+
+After that, you'll be able to copy an executable to the Raspberry Pi and run it:
+```
+rsync -avz <file_name> root@192.168.50.xx:
+<ssh connection, see above>
+./<file_name>
+```
+
 ## TD descriptions (what the code does)
 This repository contains small exercises that demonstrate timing utilities, CPU-consuming loops, basic POSIX timers, threads and mutex usage.
 
