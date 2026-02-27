@@ -37,10 +37,14 @@ ssh -tX <your-ensta-login>@ssh.ensta.fr <your-rpi2b-dev-login>@147.250.8.198
 
 After that, you'll be able to copy an executable to the Raspberry Pi and run it:
 ```
-rsync -avz <file_name> root@192.168.50.xx:
-<ssh connection, see above>
-./<file_name>
+scp -r <directory> <your-dev-login>@147.250.8.198: .
+arm-linux-g++ -Wall -Wextra <files_to_compile> -o td
+rsync -avz td root@192.168.50.xx:
+ssh root@192.168.50.xx
+./td
 ```
+
+<small>Note: To replace de _xx_ in the IP adress, please, connected at the Raspberry, launch the command `cat .raspberry_number` to get you Raspberry number.
 
 ## TD descriptions (what the code does)
 This repository contains small exercises that demonstrate timing utilities, CPU-consuming loops, basic POSIX timers, threads and mutex usage.
@@ -134,26 +138,40 @@ As we can see, with only one task, running without protection is faster and the 
 
 Also, we can see that when we are using mutexes, we have no problems getting the correct value, but when there are many loops to execute, there is a significant time difference compared to the non-protected version because acquiring and releasing the lock add some overhead each time we modify the counter value.
 
-#### E - Priority Inversion
+#### E — Priority Inversion
 In this part we modified the `Mutex` class to enable priority inheritance (to mitigate priority inversion).
-By doing this, when a high-priority task needs a resource held by a lower-priority task, the lower-priority task temporarily inherits the higher priority so it can finish and release the resource sooner.
 
-I have done some experiments with and without priority inheritance on the resource. Here are the results:
+With priority inheritance, when a high-priority task needs a resource held by a lower-priority task, the lower-priority task temporarily inherits the higher priority so it can finish and release the resource sooner.
+
+We define three tasks, A, B and C, with different priority levels. C starts and acquires the resource, but is then suspended to allow B and A to start because they have higher priorities. A cannot acquire the resource while C holds it, so A is blocked and B continues. With priority inheritance, C should inherit A's priority, finish its critical section and release the mutex sooner, which reduces A's waiting time.
+
+I have done some experiments with and without priority inheritance on the protected resource. Each _tick_ is about 10 ms and I ensured only one CPU was active so the Raspberry Pi OS did not migrate tasks between cores. Here are the results:
 
 Results without priority inheritance (resource unprotected):
 
-|Task|Execution Time since C started (ms)|
-|---|---:|
-|C|456.9|
-|A|457.0|
-|B|522.2|
+|Task|Priority|Execution Time (ms)|
+|---|---|---:|
+|C|Low|10519.0|
+|A|High|6463.0|
+|B|Medium|2109.0|
 
 Results with priority inheritance (resource protected):
 
-|Task|Execution Time since C started (ms)|
-|---|---:|
-|C|357.6|
-|A|357.6|
-|B|414.8|
+|Task|Priority|Execution Time|
+|---|---|---:|
+|C|Low|10583.0|
+|A|High|5471.0|
+|B|Medium|6527.0|
 
 <small>Note: These tests were performed on a Raspberry Pi.</small>
+
+To do this test, please launch the commands below: 
+```
+scp -r . <your-dev-login>@147.250.8.198:Dir_name
+<Connect to the Raspberry Pi>
+cd Dir_name
+arm-linux-g++ -std=c++11 -O3 -Iinclude -Wall -Wextra testbench/TD3_e.cpp src/calibrator.cpp src/chrono.cpp src/counter.cpp src/cpu_loop.cpp src/incrementer.cpp src/looper.cpp src/mutex.cpp src/thread.cpp src/timer.cpp src/timespec_utils.cpp -o TD3_e -lrt -pthread
+rsync -avz TD3_e root@192.168.50.xx:
+ssh root@192.168.50.xx
+./TD3_e
+```
