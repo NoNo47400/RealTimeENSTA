@@ -21,6 +21,8 @@ class Mutex
         class TimeoutException;
         Mutex(bool isInversionSafe = false);
         ~Mutex();
+        // Expose the underlying POSIX mutex for use by condition variables (Monitor)
+        pthread_mutex_t* getPosixMutexId();
 };
 
 

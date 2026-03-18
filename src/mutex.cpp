@@ -23,6 +23,11 @@ Mutex::~Mutex()
     pthread_mutexattr_destroy(&posixMutexAttrId);
 }
 
+pthread_mutex_t* Mutex::getPosixMutexId()
+{
+    return &posixMutexId;
+}
+
 void Mutex::lock()
 {
     pthread_mutex_lock(&posixMutexId);

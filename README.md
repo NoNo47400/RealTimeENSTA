@@ -28,7 +28,7 @@ To connect to the Raspberry Pi, use one of these two methods:
 ssh -Y <your-dev-login>@147.250.8.198
 ```
 
-- If you're outside the ENSTA network:
+- If you're outside the ENSTA network (use the ENSTA gateway as a jump host):
 ```
 ssh -tX <your-ensta-login>@ssh.ensta.fr <your-rpi2b-dev-login>@147.250.8.198
 ```
@@ -44,7 +44,11 @@ ssh root@192.168.50.xx
 ./td
 ```
 
-<small>Note: To replace de _xx_ in the IP adress, please, connected at the Raspberry, launch the command `cat .raspberry_number` to get you Raspberry number.
+<small>Note: To replace the _xx_ in the IP address, on the Raspberry run:
+```
+cat ~/.raspberry_number
+```
+This prints the device number used in the `192.168.50.xx` example above.</small>
 
 ## TD descriptions (what the code does)
 This repository contains small exercises that demonstrate timing utilities, CPU-consuming loops, basic POSIX timers, threads and mutex usage.
@@ -90,7 +94,7 @@ The exact numerical counter values depend heavily on the CPU and system load, so
 - `Mutex::Lock` — an RAII lock object. Constructing it locks the mutex, destroying it unlocks the mutex. A timed constructor is also available.
 - `Mutex::TimeoutException` — thrown by the timed `Lock` constructor on timeout.
 
-This design avoids forgetting to unlock the mutex (the destructor will unlock automatically if the lock object goes out of scope because it is on the stack).
+This design avoids forgetting to unlock the mutex: the destructor unlocks when the lock object goes out of scope.
 
 #### C — `Thread` wrapper class
 `Thread` provides a wrapper around POSIX threads.  
@@ -167,7 +171,7 @@ Results with priority inheritance (resource protected):
 
 To do this test, please launch the commands below: 
 ```
-scp -r . <your-dev-login>@147.250.8.198:Dir_name
+scp -r -J <your-ensta-login>@ssh.ensta.fr . <your-dev-login>@147.250.8.198:Dir_name
 <Connect to the Raspberry Pi>
 cd Dir_name
 arm-linux-g++ -std=c++11 -O3 -Iinclude -Wall -Wextra testbench/TD3_e.cpp src/calibrator.cpp src/chrono.cpp src/counter.cpp src/cpu_loop.cpp src/incrementer.cpp src/looper.cpp src/mutex.cpp src/thread.cpp src/timer.cpp src/timespec_utils.cpp -o TD3_e -lrt -pthread
@@ -175,3 +179,39 @@ rsync -avz TD3_e root@192.168.50.xx:
 ssh root@192.168.50.xx
 ./TD3_e
 ```
+
+### TD4
+TD4 implements two synchronization primitives built on POSIX: a Monitor (condition + mutex helper) and a Semaphore (counting sync object).    
+The purpose of these classes is to provide safe, reusable abstractions for common thread coordination patterns.
+
+#### A — `Monitor` — purpose and contract
+
+The Monitor class encapsulates a POSIX condition variable (`pthread_cond_t`) together with a mutex supplied by the caller.   
+
+It provides signalling functions: notify a single waiter (signal) or broadcast to wake all waiters.
+
+
+#### B — `Semaphore` — purpose and contract
+
+The Semaphore class implements a counting semaphore using a protected counter, a mutex and a `Monitor`. The class models a token bucket with a maximum capacity. It provides two primary operations:
+
+- `give` : add a token if the semaphore is not full. If the counter increases, wake a single waiting thread. If the counter is already at `maxValue`, the call has no effect.
+- `take` : blocking removal of a token. If the counter is positive it is decremented atomically; otherwise the caller waits on the `notEmpty` condition until a token becomes available. A `timeout` can be provided to limit how long the caller waits.
+
+Here are multiple tests done on my PC:
+
+|N° of Producers|N° of tokens by Producers|N° of Consumers|N° of tokens received by Consumers|
+|---|---|---:|---:|
+|5|1000|5|[933; 893; 892; 1329; 953]|
+|1|10|50|[10; 0; ...; 0]|
+|50|10000|1|[500000]|
+
+These results indicate the semaphore behaves as expected and does not lose tokens, even with many producers and only one consumer.
+When the total number of produced tokens is small, one consumer may consume most tokens and leave others starving (this depends on scheduling).
+
+
+
+
+<!--
+arm-linux-g++ -std=c++11 -O3 -Iinclude -Wall -Wextra testbench/TD4_b.cpp src/mutex.cpp src/thread.cpp src/monitor.cpp src/semaphore.cpp src/timespec_utils.cpp src/chrono.cpp -o TD4_b -lrt -pthread
+-->
