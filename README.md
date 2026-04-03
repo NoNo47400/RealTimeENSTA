@@ -198,20 +198,24 @@ The Semaphore class implements a counting semaphore using a protected counter, a
 - `give` : add a token if the semaphore is not full. If the counter increases, wake a single waiting thread. If the counter is already at `maxValue`, the call has no effect.
 - `take` : blocking removal of a token. If the counter is positive it is decremented atomically; otherwise the caller waits on the `notEmpty` condition until a token becomes available. A `timeout` can be provided to limit how long the caller waits.
 
-Here are multiple tests done on my PC:
+Here are multiple tests done on RaspberryPi:
 
 |N° of Producers|N° of tokens by Producers|N° of Consumers|N° of tokens received by Consumers|
 |---|---|---:|---:|
-|5|1000|5|[933; 893; 892; 1329; 953]|
+|5|1000|5|[2495; 3022; 1509; 2477; 497]|
 |1|10|50|[10; 0; ...; 0]|
 |50|10000|1|[500000]|
 
 These results indicate the semaphore behaves as expected and does not lose tokens, even with many producers and only one consumer.
 When the total number of produced tokens is small, one consumer may consume most tokens and leave others starving (this depends on scheduling).
 
-
-
-
-<!--
+To do this test, please launch the commands below:
+```
+scp -r -J <your-ensta-login>@ssh.ensta.fr . <your-dev-login>@147.250.8.198:Dir_name
+<Connect to the Raspberry Pi>
+cd Dir_name
 arm-linux-g++ -std=c++11 -O3 -Iinclude -Wall -Wextra testbench/TD4_b.cpp src/mutex.cpp src/thread.cpp src/monitor.cpp src/semaphore.cpp src/timespec_utils.cpp src/chrono.cpp -o TD4_b -lrt -pthread
--->
+rsync -avz TD4_b root@192.168.50.xx:
+ssh root@192.168.50.xx
+./TD4_b
+```

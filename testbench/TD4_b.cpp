@@ -36,7 +36,7 @@ public:
     {
         while (true)
         {
-            // Détection de la fin via le timeout d'une demi-seconde imposé par le TD
+            // Detection of completion: if take() fails after 500ms, we assume producers are done
             if (!sem.take(500)) {
                 break; 
             }
@@ -52,7 +52,6 @@ private:
 
 int main(int argc, char** argv)
 {
-    // Le TD spécifie exactement 3 arguments numériques
     if (argc != 4)
     {
         std::cerr << "Usage: " << argv[0] << " <num_consumers> <num_producers> <tokens_per_producer>" << std::endl;
