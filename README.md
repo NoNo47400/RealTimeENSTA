@@ -193,7 +193,9 @@ It provides signalling functions: notify a single waiter (signal) or broadcast t
 
 #### B — `Semaphore` — purpose and contract
 
-The Semaphore class implements a counting semaphore using a protected counter, a mutex and a `Monitor`. The class models a token bucket with a maximum capacity. It provides two primary operations:
+The Semaphore class implements a counting semaphore using a protected counter, a mutex and a `Monitor`. The class models a token bucket with a maximum capacity.   
+
+It provides two primary operations:
 
 - `give` : add a token if the semaphore is not full. If the counter increases, wake a single waiting thread. If the counter is already at `maxValue`, the call has no effect.
 - `take` : blocking removal of a token. If the counter is positive it is decremented atomically; otherwise the caller waits on the `notEmpty` condition until a token becomes available. A `timeout` can be provided to limit how long the caller waits.
@@ -219,3 +221,12 @@ rsync -avz TD4_b root@192.168.50.xx:
 ssh root@192.168.50.xx
 ./TD4_b
 ```
+
+#### Bonus — `ActiveFifo` — Protected First-In First-Out (FIFO)
+
+The ActiveFifo class implements a shared and protected FIFO across threads. The class models a `std::deque` using a template type to be generic and usable for any purpose.  
+
+It provides two primary operations:
+
+- `push` : add an item to the FIFO. If the FIFO was empty, wake a single waiting thread. If the FIFO is already at `maxValue`, the call blocks until space is available.
+- `pop` : blocking removal of an item. If the FIFO is not empty the front element is returned; otherwise the caller waits on the `notEmpty` condition until an item becomes available. A parameter can be provided to retrieve multiple data items at once.

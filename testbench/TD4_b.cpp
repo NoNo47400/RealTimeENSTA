@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     {
         p->join();
         totalProduced += p->getProduced();
-        std::cout << "Producer produced : " << p->getProduced() << " jetons." << std::endl;
+        std::cout << "Producer produced : " << p->getProduced() << " tokens." << std::endl;
     }
 
     unsigned long totalConsumed = 0;
@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     {
         c->join();
         totalConsumed += c->getConsumed();
-        std::cout << "Consumer consumed : " << c->getConsumed() << " jetons." << std::endl;
+        std::cout << "Consumer consumed : " << c->getConsumed() << " tokens." << std::endl;
     }
 
     std::cout << "\nTotal produced: " << totalProduced << std::endl;
